@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard เลือกสถาบันสัมภาษณ์ ว.โสต ศอ นาสิก 2570</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f7fa;--card:#fff;--tx:#1c2430;--mu:#677489;--bd:#e1e6ee;--pri:#0f6e8c;--pri2:#d8eef5;--m:#2f6fd6;--f:#d6457f;--warn:#b45309;--warnbg:#fef3c7;--ok:#15803d;--bad:#b91c1c;--badbg:#fee2e2}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#111821;--card:#1a232f;--tx:#e8edf3;--mu:#94a3b8;--bd:#2a3645;--pri:#4cc3e3;--pri2:#173a47;--m:#6ea2ff;--f:#f472a8;--warn:#fbbf24;--warnbg:#3a2e0e;--ok:#4ade80;--bad:#f87171;--badbg:#3d1a1a}}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;font-family:'Noto Sans Thai',system-ui,sans-serif;background:var(--bg);color:var(--tx);padding:16px;font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-size:1.35rem;margin:0}
+.sub{color:var(--mu);font-size:.85rem}
+header{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:14px}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;padding:6px 12px}
+button:hover{border-color:var(--pri)}
+.seg{display:inline-flex;border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--card)}
+.seg button{border:0;border-radius:0;padding:8px 18px;font-weight:500}
+.seg button.on{background:var(--pri);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:1.7rem;line-height:1.2}
+.kpi span{color:var(--mu);font-size:.8rem}
+.kpi.warn b{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.inst{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left;display:block;width:100%}
+.inst.sel{border-color:var(--pri);box-shadow:0 0 0 2px var(--pri2)}
+.inst .nm{font-size:.82rem;color:var(--mu);min-height:2.6em}
+.inst .n{font-size:1.8rem;font-weight:700}
+.inst .n small{font-size:.8rem;font-weight:400;color:var(--mu)}
+.bar{height:6px;background:var(--pri2);border-radius:4px;overflow:hidden;margin:6px 0}
+.bar i{display:block;height:100%;background:var(--pri)}
+.mf{font-size:.8rem;display:flex;justify-content:space-between;color:var(--mu)}
+.inst.none{border-style:dashed}
+.inst.none .n{color:var(--bad)}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-top:14px}
+.ph{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ph h2{margin:0;font-size:1.05rem}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+input[type=search]{font:inherit;padding:6px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);min-width:160px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{color:var(--mu);font-weight:500;font-size:.78rem}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:.75rem}
+.tM{background:var(--pri2);color:var(--m)}.tF{background:var(--pri2);color:var(--f)}
+.tw2{background:var(--warnbg);color:var(--warn)}
+.msg{padding:12px 14px;border-radius:10px;margin:10px 0;font-size:.88rem}
+.err{background:var(--badbg);color:var(--bad)}.wn{background:var(--warnbg);color:var(--warn)}
+.empty{color:var(--mu);padding:16px;text-align:center}
+@media print{.noprint{display:none!important}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>การเลือกสถาบันสัมภาษณ์ ว.โสต ศอ นาสิกแพทย์ ปีการศึกษา 2570</h1>
+    <div class="sub" id="upd">กำลังโหลดข้อมูล…</div>
+  </div>
+  <div class="tools noprint">
+    <div class="seg" id="seg">
+      <button data-r="1" class="on">ครั้งที่ 1</button>
+      <button data-r="2">ครั้งที่ 2 (ตั้งแต่ 9 พ.ย.)</button>
+    </div>
+    <button id="refresh">รีเฟรช</button>
+  </div>
+</header>
+<div id="msgs"></div>
+<div class="kpis" id="kpis"></div>
+<div class="grid" id="grid"></div>
+<div class="panel" id="detail" style="display:none"></div>
+</div>
+
+<script>
+/* ====== ตั้งค่า ====== */
+const CONFIG = {
+  responseSheetId: '18qTFe_TJRNJLwQ6CsMAK_bwtL67UKwUR2c4b4s4WJnA', // ชีตผู้เลือกสถาบัน
+  rosterSheetId:   '1p4zsnJPu1vX09GJOBDDJi4rM8A6m1xyty0v8TbV5JR8', // ชีตรายชื่อผู้สมัครทั้งหมด
+  round2Start: new Date(2026, 10, 9, 0, 0, 0), // 9 พ.ย. 2026 00:00 เป็นต้นไป = ครั้งที่ 2
+  refreshSec: 60
+};
+const INST = {
+  101:'คณะแพทยศาสตร์ศิริราชพยาบาล ม.มหิดล',102:'คณะแพทยศาสตร์ จุฬาลงกรณ์มหาวิทยาลัย',
+  103:'คณะแพทยศาสตร์ ม.เชียงใหม่',104:'คณะแพทยศาสตร์ รพ.รามาธิบดี ม.มหิดล',
+  105:'คณะแพทยศาสตร์ ม.สงขลานครินทร์',106:'คณะแพทยศาสตร์ ม.ขอนแก่น',
+  107:'กพบ-วิทยาลัยแพทยศาสตร์/รพ.พระมงกุฎเกล้า',108:'คณะแพทยศาสตร์ ม.ศรีนครินทรวิโรฒ',
+  109:'คณะแพทยศาสตร์ ม.ธรรมศาสตร์',119:'กพอ-โรงพยาบาลภูมิพลอดุลยเดช',
+  128:'คณะแพทยศาสตร์วชิรพยาบาล ม.นวมินทราธิราช',202:'กพ-โรงพยาบาลราชวิถี'
+};
+/* ====================== */
+
+let round = 1, sel = null, DATA = null, q = '';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const csvUrl = id => `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv`;
+
+function parseCSV(t){
+  const rows=[];let r=[],f='',inq=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(inq){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else inq=false}else f+=c}
+    else if(c=='"')inq=true;
+    else if(c==','){r.push(f);f=''}
+    else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;r.push(f);rows.push(r);r=[];f=''}
+    else f+=c}
+  if(f||r.length){r.push(f);rows.push(r)}
+  return rows;
+}
+const digits = s => String(s||'').replace(/\D/g,'');
+function parseTs(s){
+  const m = String(s).match(/(\d+)\/(\d+)\/(\d+),?\s+(\d+):(\d+)(?::(\d+))?/);
+  if(!m) return null;
+  let y=+m[3]; if(y>2400) y-=543;
+  return new Date(y,+m[2]-1,+m[1],+m[4],+m[5],+(m[6]||0));
+}
+const fmtT = d => d ? d.toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+const code = s => { const m = String(s).match(/\d{3}/); return m ? +m[0] : null; };
+
+function build(rosterRows, respRows){
+  const people = new Map();
+  rosterRows.slice(1).forEach(r => {
+    const id = digits(r[1]); if(!id) return;
+    const t = (r[2]||'').trim();
+    people.set(id,{id,title:t,first:(r[3]||'').trim(),last:(r[4]||'').trim(),
+      gender:t.startsWith('พญ')?'F':t.startsWith('นพ')?'M':'?',
+      email:(r[5]||'').trim(),phone:digits(r[6]),note:(r[7]||'').trim(),inRoster:true,r1:null,r2:null});
+  });
+  const resp = respRows.slice(1).map(r => ({t:parseTs(r[0]),email:r[1],title:r[2],first:r[3],last:r[4],
+      id:digits(r[5]),phone:digits(r[6]),inst:code(r[7])})).filter(x=>x.id&&x.inst);
+  resp.sort((a,b)=>(a.t||0)-(b.t||0));
+  let unmatched = 0;
+  resp.forEach(x => {
+    let p = people.get(x.id);
+    if(!p){ unmatched++;
+      p = {id:x.id,title:x.title,first:x.first,last:x.last,gender:/หญิง/.test(x.title)?'F':'M',
+        email:x.email,phone:x.phone,note:'',inRoster:false,r1:null,r2:null};
+      people.set(x.id,p);}
+    const slot = (x.t && x.t >= CONFIG.round2Start) ? 'r2' : 'r1';
+    p[slot] = {inst:x.inst,t:x.t};   // ใช้คำตอบล่าสุดของแต่ละรอบ
+  });
+  return {people:[...people.values()], unmatched:new Set(resp.filter(x=>![...people.values()].find(p=>p.id==x.id&&p.inRoster)).map(x=>x.id)).size, total:resp.length};
+}
+
+async function load(){
+  $('msgs').innerHTML='';
+  try{
+    const [a,b] = await Promise.all([fetch(csvUrl(CONFIG.rosterSheetId)),fetch(csvUrl(CONFIG.responseSheetId))]);
+    if(!a.ok||!b.ok) throw new Error('HTTP '+a.status+'/'+b.status);
+    DATA = build(parseCSV(await a.text()), parseCSV(await b.text()));
+    $('upd').textContent = 'อัปเดตล่าสุด '+new Date().toLocaleString('th-TH')+' · ข้อมูลจาก Google Sheets (รีเฟรชอัตโนมัติทุก '+CONFIG.refreshSec+' วินาที)';
+    render();
+  }catch(e){
+    $('msgs').innerHTML = '<div class="msg err">โหลดข้อมูลจาก Google Sheets ไม่สำเร็จ ('+esc(e.message)+')<br>ตรวจสอบว่า (1) ทั้งสองชีตตั้งค่าแชร์เป็น “ทุกคนที่มีลิงก์ดูได้” (2) ต่ออินเทอร์เน็ตอยู่ แล้วกด “รีเฟรช”</div>';
+    $('upd').textContent='โหลดข้อมูลไม่สำเร็จ';
+  }
+}
+
+const pick = p => round===1 ? p.r1 : p.r2;
+function render(){
+  if(!DATA) return;
+  const roster = DATA.people.filter(p=>p.inRoster);
+  const M = roster.filter(p=>p.gender=='M').length, F = roster.filter(p=>p.gender=='F').length;
+  const chosen = roster.filter(p=>pick(p)), notC = roster.filter(p=>!pick(p));
+  const c1 = roster.filter(p=>p.r1).length, c2 = roster.filter(p=>p.r2).length;
+  const changed = roster.filter(p=>p.r1&&p.r2&&p.r1.inst!==p.r2.inst).length;
+  const k = (v,l,cls='')=>`<div class="kpi ${cls}"><b>${v}</b><span>${l}</span></div>`;
+  $('kpis').innerHTML =
+    k(roster.length,'ผู้สมัครทั้งหมด (คน)')+k(M,'ชาย (นพ.)')+k(F,'หญิง (พญ.)')+
+    k(c1,'ครั้งที่ 1: เลือกแล้ว')+k(roster.length-c1,'ครั้งที่ 1: ยังไม่เลือก','warn')+
+    k(c2,'ครั้งที่ 2: เลือกแล้ว')+k(roster.length-c2,'ครั้งที่ 2: ยังไม่เลือก','warn')+
+    k(changed,'เปลี่ยนสถาบันจากครั้งที่ 1');
+  let msgs='';
+  if(DATA.unmatched) msgs+=`<div class="msg wn">พบผู้ตอบฟอร์ม ${DATA.unmatched} คนที่เลข ว. ไม่อยู่ในรายชื่อผู้สมัคร (แสดงในรายชื่อสถาบันพร้อมป้าย “ไม่อยู่ในรายชื่อ”)</div>`;
+  const noteN = roster.filter(p=>p.note).length;
+  if(noteN) msgs+=`<div class="msg wn">มีผู้สมัคร ${noteN} คนที่มีหมายเหตุในชีตรายชื่อ (เช่น หนังสือรับรองเพิ่มพูนทักษะไม่ถูกต้อง) แสดงป้ายในตารางรายชื่อ</div>`;
+  $('msgs').innerHTML = msgs;
+
+  const all = DATA.people;
+  const cnt = {}; Object.keys(INST).forEach(c=>cnt[c]=[]);
+  all.forEach(p=>{const s=pick(p); if(s){(cnt[s.inst]=cnt[s.inst]||[]).push(p)}});
+  const other = round===1?2:1;
+  const cntOther = {}; all.forEach(p=>{const s=other===1?p.r1:p.r2; if(s) cntOther[s.inst]=(cntOther[s.inst]||0)+1});
+  const max = Math.max(1,...Object.values(cnt).map(a=>a.length));
+  const order = Object.keys(cnt).sort((a,b)=>cnt[b].length-cnt[a].length||a-b);
+  $('grid').innerHTML = order.map(c=>{
+    const a=cnt[c], m=a.filter(p=>p.gender=='M').length;
+    return `<button class="inst ${sel==c?'sel':''}" data-c="${c}">
+      <div class="nm">${c} · ${esc(INST[c]||'สถาบันอื่น')}</div>
+      <div class="n">${a.length} <small>คน</small></div>
+      <div class="bar"><i style="width:${a.length/max*100}%"></i></div>
+      <div class="mf"><span>ชาย ${m} · หญิง ${a.length-m}</span><span>ครั้งที่ ${other}: ${cntOther[c]||0}</span></div></button>`;
+  }).join('') +
+  `<button class="inst none ${sel=='none'?'sel':''}" data-c="none">
+    <div class="nm">ยังไม่ได้เลือกสถาบัน (ครั้งที่ ${round})</div>
+    <div class="n">${notC.length} <small>คน</small></div>
+    <div class="mf"><span>คลิกเพื่อดูรายชื่อ</span><span></span></div></button>`;
+  renderDetail(cnt, notC);
+}
+
+function renderDetail(cnt, notC){
+  const d = $('detail');
+  if(!sel){ d.style.display='none'; return; }
+  const list = (sel=='none'?notC:(cnt[sel]||[])).slice().sort((a,b)=>a.first.localeCompare(b.first,'th'));
+  const title = sel=='none' ? `ยังไม่ได้เลือก (ครั้งที่ ${round})` : `${sel} · ${INST[sel]||''} (ครั้งที่ ${round})`;
+  const ql = q.trim().toLowerCase();
+  const shown = ql ? list.filter(p=>(p.first+p.last+p.id+p.email).toLowerCase().includes(ql)) : list;
+  d.style.display='block';
+  d.innerHTML = `<div class="ph"><h2>${esc(title)} — ${list.length} คน</h2>
+    <div class="tools noprint"><input type="search" id="q" placeholder="ค้นหาชื่อ / เลข ว." value="${esc(q)}">
+    <button id="cp">คัดลอกรายชื่อ</button><button id="dl">ดาวน์โหลด CSV</button><button onclick="print()">พิมพ์</button><button id="cl">ปิด</button></div></div>
+    <div class="tw">${shown.length?`<table><thead><tr><th>#</th><th>ชื่อ-สกุล</th><th>เลข ว.</th><th>เพศ</th><th>เบอร์โทร</th><th>อีเมล</th>
+      <th>เวลาที่เลือก</th>${round==2?'<th>ครั้งที่ 1</th>':''}<th>หมายเหตุ</th></tr></thead><tbody>`+
+      shown.map((p,i)=>{const s=pick(p);
+        const ch = round==2 && p.r1 ? (p.r1.inst==(s&&s.inst)?'เหมือนเดิม':'<span class="tag tw2">'+p.r1.inst+'</span>') : (round==2?'-':'');
+        return `<tr><td>${i+1}</td><td>${esc(p.title)} ${esc(p.first)} ${esc(p.last)}</td><td>${p.id}</td>
+        <td><span class="tag ${p.gender=='M'?'tM':'tF'}">${p.gender=='M'?'ชาย':'หญิง'}</span></td><td>${esc(p.phone)}</td><td>${esc(p.email)}</td>
+        <td>${s?fmtT(s.t):'-'}</td>${round==2?`<td>${ch}</td>`:''}
+        <td>${p.inRoster?'':'<span class="tag tw2">ไม่อยู่ในรายชื่อ</span> '}${p.note?'<span class="tag tw2">'+esc(p.note)+'</span>':''}</td></tr>`}).join('')+
+      '</tbody></table>':'<div class="empty">ยังไม่มีรายชื่อ</div>'}</div>`;
+  const rows = () => list.map((p,i)=>[i+1,p.title+' '+p.first+' '+p.last,p.id,p.gender=='M'?'ชาย':'หญิง',p.phone,p.email]);
+  $('q').oninput = e => {q=e.target.value; const pos=e.target.selectionStart; renderDetail(cnt,notC); const n=$('q'); n.focus(); n.setSelectionRange(pos,pos)};
+  $('cl').onclick = () => {sel=null;render()};
+  $('cp').onclick = () => {
+    const txt = [['ลำดับ','ชื่อ-สกุล','เลข ว.','เพศ','เบอร์','อีเมล'],...rows()].map(r=>r.join('\t')).join('\n');
+    const done = () => {$('cp').textContent='คัดลอกแล้ว ✓'; setTimeout(()=>$('cp').textContent='คัดลอกรายชื่อ',1500)};
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(done).catch(()=>{
+      const t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();done()});
+  };
+  $('dl').onclick = () => {
+    const csv = '\ufeff'+[['ลำดับ','ชื่อ-สกุล','เลข ว.','เพศ','เบอร์','อีเมล'],...rows()].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+    a.download=`ent2570_round${round}_${sel}.csv`;a.click();
+  };
+}
+
+$('grid').addEventListener('click', e => {
+  const b = e.target.closest('.inst'); if(!b) return;
+  sel = sel==b.dataset.c ? null : b.dataset.c; q='';
+  render(); if(sel) $('detail').scrollIntoView({behavior:'smooth',block:'start'});
+});
+$('seg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  round = +b.dataset.r;
+  [...$('seg').children].forEach(x=>x.classList.toggle('on',x===b));
+  render();
+});
+$('refresh').onclick = load;
+// เปิดมาแล้วเลือกรอบอัตโนมัติตามวันที่ปัจจุบัน
+if(new Date() >= CONFIG.round2Start){round=2;[...$('seg').children].forEach(x=>x.classList.toggle('on',x.dataset.r=='2'))}
+load(); setInterval(load, CONFIG.refreshSec*1000);
+</script>
+</body>
+</html>
