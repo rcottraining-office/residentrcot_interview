@@ -64,7 +64,7 @@ th{color:var(--mu);font-weight:500;font-size:.78rem}
   <div class="tools noprint">
     <div class="seg" id="seg">
       <button data-r="1" class="on">ครั้งที่ 1</button>
-      <button data-r="2">ครั้งที่ 2 (ตั้งแต่ 6 พ.ย. 16:00)</button>
+      <button data-r="2">ครั้งที่ 2 / ผลสุดท้าย (ตั้งแต่ 6 พ.ย. 16:00)</button>
     </div>
     <button id="refresh">รีเฟรช</button>
   </div>
@@ -81,6 +81,7 @@ const CONFIG = {
   responseSheetId: '18qTFe_TJRNJLwQ6CsMAK_bwtL67UKwUR2c4b4s4WJnA', // ชีตผู้เลือกสถาบัน
   rosterSheetId:   '1p4zsnJPu1vX09GJOBDDJi4rM8A6m1xyty0v8TbV5JR8', // ชีตรายชื่อผู้สมัครทั้งหมด
   round2Start: new Date(2026, 10, 6, 16, 0, 0), // 6 พ.ย. 2026 16:00 เป็นต้นไป = ครั้งที่ 2
+  carryOver: true, // true = ไม่ส่งฟอร์มครั้งที่ 2 ถือว่ายืนยันสถาบันเดิมจากครั้งที่ 1
   refreshSec: 60
 };
 const INST = {
@@ -158,7 +159,8 @@ async function load(){
   }
 }
 
-const pick = p => round===1 ? p.r1 : p.r2;
+const fin2 = p => p.r2 || (CONFIG.carryOver && p.r1 ? {inst:p.r1.inst,t:p.r1.t,carried:true} : null);
+const pick = p => round===1 ? p.r1 : fin2(p);
 function render(){
   if(!DATA) return;
   const roster = DATA.people.filter(p=>p.inRoster);
@@ -166,23 +168,27 @@ function render(){
   const chosen = roster.filter(p=>pick(p)), notC = roster.filter(p=>!pick(p));
   const c1 = roster.filter(p=>p.r1).length, c2 = roster.filter(p=>p.r2).length;
   const changed = roster.filter(p=>p.r1&&p.r2&&p.r1.inst!==p.r2.inst).length;
+  const stay = roster.filter(p=>p.r1&&!p.r2).length;
+  const noneAtAll = roster.filter(p=>!fin2(p)).length;
   const k = (v,l,cls='')=>`<div class="kpi ${cls}"><b>${v}</b><span>${l}</span></div>`;
   $('kpis').innerHTML =
     k(roster.length,'ผู้สมัครทั้งหมด (คน)')+k(M,'ชาย (นพ.)')+k(F,'หญิง (พญ.)')+
     k(c1,'ครั้งที่ 1: เลือกแล้ว')+k(roster.length-c1,'ครั้งที่ 1: ยังไม่เลือก','warn')+
-    k(c2,'ครั้งที่ 2: เลือกแล้ว')+k(roster.length-c2,'ครั้งที่ 2: ยังไม่เลือก','warn')+
-    k(changed,'เปลี่ยนสถาบันจากครั้งที่ 1');
+    k(c2,'ครั้งที่ 2: ส่งฟอร์มแล้ว')+k(roster.length-c2,'ครั้งที่ 2: ยังไม่ส่งฟอร์ม','warn')+
+    k(stay,'ครั้งที่ 2: ไม่ส่งฟอร์ม (คงที่เดิม)')+k(changed,'ครั้งที่ 2: เปลี่ยนสถาบัน')+
+    k(noneAtAll,'ยังไม่มีสถาบันเลย (ผลสุดท้าย)','warn');
   let msgs='';
   if(DATA.unmatched) msgs+=`<div class="msg wn">พบผู้ตอบฟอร์ม ${DATA.unmatched} คนที่เลข ว. ไม่อยู่ในรายชื่อผู้สมัคร (แสดงในรายชื่อสถาบันพร้อมป้าย “ไม่อยู่ในรายชื่อ”)</div>`;
   const noteN = roster.filter(p=>p.note).length;
   if(noteN) msgs+=`<div class="msg wn">มีผู้สมัคร ${noteN} คนที่มีหมายเหตุในชีตรายชื่อ (เช่น หนังสือรับรองเพิ่มพูนทักษะไม่ถูกต้อง) แสดงป้ายในตารางรายชื่อ</div>`;
+  if(round===2) msgs+=`<div class="msg wn">ครั้งที่ 2 = ผลสุดท้าย: ${CONFIG.carryOver?'ผู้ที่ไม่ส่งฟอร์มครั้งที่ 2 ถือว่ายืนยันสถาบันเดิมจากครั้งที่ 1 (ติดป้าย “ไม่ส่งฟอร์ม – คงที่เดิม”)':'นับเฉพาะผู้ที่ส่งฟอร์มครั้งที่ 2'}</div>`;
   $('msgs').innerHTML = msgs;
 
   const all = DATA.people;
   const cnt = {}; Object.keys(INST).forEach(c=>cnt[c]=[]);
   all.forEach(p=>{const s=pick(p); if(s){(cnt[s.inst]=cnt[s.inst]||[]).push(p)}});
   const other = round===1?2:1;
-  const cntOther = {}; all.forEach(p=>{const s=other===1?p.r1:p.r2; if(s) cntOther[s.inst]=(cntOther[s.inst]||0)+1});
+  const cntOther = {}; all.forEach(p=>{const s=other===1?p.r1:fin2(p); if(s) cntOther[s.inst]=(cntOther[s.inst]||0)+1});
   const max = Math.max(1,...Object.values(cnt).map(a=>a.length));
   const order = Object.keys(cnt).sort((a,b)=>cnt[b].length-cnt[a].length||a-b);
   $('grid').innerHTML = order.map(c=>{
@@ -194,7 +200,7 @@ function render(){
       <div class="mf"><span>ชาย ${m} · หญิง ${a.length-m}</span><span>ครั้งที่ ${other}: ${cntOther[c]||0}</span></div></button>`;
   }).join('') +
   `<button class="inst none ${sel=='none'?'sel':''}" data-c="none">
-    <div class="nm">ยังไม่ได้เลือกสถาบัน (ครั้งที่ ${round})</div>
+    <div class="nm">${round===2?'ยังไม่มีสถาบันเลย (ผลสุดท้าย)':'ยังไม่ได้เลือกสถาบัน (ครั้งที่ 1)'}</div>
     <div class="n">${notC.length} <small>คน</small></div>
     <div class="mf"><span>คลิกเพื่อดูรายชื่อ</span><span></span></div></button>`;
   renderDetail(cnt, notC);
@@ -217,7 +223,7 @@ function renderDetail(cnt, notC){
         const ch = round==2 && p.r1 ? (p.r1.inst==(s&&s.inst)?'เหมือนเดิม':'<span class="tag tw2">'+p.r1.inst+'</span>') : (round==2?'-':'');
         return `<tr><td>${i+1}</td><td>${esc(p.title)} ${esc(p.first)} ${esc(p.last)}</td><td>${p.id}</td>
         <td><span class="tag ${p.gender=='M'?'tM':'tF'}">${p.gender=='M'?'ชาย':'หญิง'}</span></td><td>${esc(p.phone)}</td><td>${esc(p.email)}</td>
-        <td>${s?fmtT(s.t):'-'}</td>${round==2?`<td>${ch}</td>`:''}
+        <td>${s?(s.carried?'<span class="tag tw2">ไม่ส่งฟอร์ม – คงที่เดิม</span>':fmtT(s.t)):'-'}</td>${round==2?`<td>${ch}</td>`:''}
         <td>${p.inRoster?'':'<span class="tag tw2">ไม่อยู่ในรายชื่อ</span> '}${p.note?'<span class="tag tw2">'+esc(p.note)+'</span>':''}</td></tr>`}).join('')+
       '</tbody></table>':'<div class="empty">ยังไม่มีรายชื่อ</div>'}</div>`;
   const rows = () => list.map((p,i)=>[i+1,p.title+' '+p.first+' '+p.last,p.id,p.gender=='M'?'ชาย':'หญิง',p.phone,p.email]);
